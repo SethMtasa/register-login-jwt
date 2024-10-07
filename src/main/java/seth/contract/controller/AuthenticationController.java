@@ -22,6 +22,7 @@ public class AuthenticationController {
         return ResponseEntity.ok(userService.authenticateUser(loginRequest));
     }
 
+
     @PostMapping("/register")
     public ResponseEntity<AuthenticationResponse<String>> registerUser(@RequestBody RegistrationRequest registrationRequest) throws Exception {
         return ResponseEntity.ok(userService.registerUser(registrationRequest));
