@@ -29,12 +29,14 @@ public class SecurityConfig {
     private final UserDetailsService myUserDetailsService;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-          return http.csrf(AbstractHttpConfigurer::disable)
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, CorsConfigurationSource corsConfigurationSource) throws Exception {
+        return http.cors(cors -> cors.configurationSource(corsConfigurationSource))
+                .csrf(AbstractHttpConfigurer::disable)
                  .authorizeHttpRequests(
                          request -> request.requestMatchers("/login/**","/register/**")
                         .permitAll()
-                         .requestMatchers("/update-limit", "/child/approve", "/child/by-status", "/child/add", "/child/by-staff", "/child/{name}", "/limit").hasRole("ADMIN")
+                         .requestMatchers("/users" ).hasAnyRole("ADMIN", "USER")
+                                 .requestMatchers("/user/delete/**","/departments/add","/departments/all","/contractTypes/add","/contractTypes/all", "/users/active","/user/{username}", "/user/update/{id}" ).hasRole("ADMIN")
                         .anyRequest()
                         .authenticated()
                 ).userDetailsService(myUserDetailsService)
@@ -72,9 +74,9 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000"));
-        configuration.setAllowedMethods(List.of("GET","POST"));
-        configuration.setAllowedHeaders(List.of("Authorization","Content-Type"));
+        configuration.setAllowedOrigins(List.of("*"));
+        configuration.setAllowedMethods(List.of("*"));
+        configuration.setAllowedHeaders(List.of("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**",configuration);
         return source;

@@ -23,14 +23,9 @@ public class ContractType {
     @PrePersist
     public void prePersist(){ this.activeStatus = true; }
 
-    public static ContractType newWithId(long id){
-        final ContractType type = new ContractType();
-        type.id = id;
-        return type;
-    }
-
-    public static abstract class Meta {
-        public static final String ID = "id";
-        public static final String NAME = "name";
+    public static class Meta {
+        public static final String CONTRACT_TYPE_ID = "id";
+        public static final String CONTRACT_TYPE_NAME = "name";
+        public static final String ACTIVE_STATUS = "activeStatus";
     }
 }

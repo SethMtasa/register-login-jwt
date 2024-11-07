@@ -23,8 +23,6 @@ public class User extends BaseEntity implements UserDetails {
     @Column(nullable = false)
     private String email;
 
-    @Column(nullable = false)
-    private String password;
 
     @Column(nullable = false)
     private String firstName;
@@ -54,7 +52,10 @@ public class User extends BaseEntity implements UserDetails {
         return List.of(new SimpleGrantedAuthority( "ROLE_" + getRole().getName()));
     }
 
-
+    @Override
+    public String getPassword() {
+        return null;
+    }
 
     @Override
     public boolean isAccountNonExpired() {

@@ -23,14 +23,11 @@ public class Department {
     @PrePersist
     public void prePersist(){ this.activeStatus = true; }
 
-    public static Department newWithId(long id){
-        final Department department = new Department();
-        department.id = id;
-        return department;
-    }
 
-    public static abstract class Meta {
-        public static final String ID = "id";
-        public static final String NAME = "name";
+
+    public static class Meta {
+        public static final String DEPARTMENT_ID = "id";
+        public static final String DEPARTMENT_NAME = "name";
+        public static final String ACTIVE_STATUS = "activeStatus";
     }
 }

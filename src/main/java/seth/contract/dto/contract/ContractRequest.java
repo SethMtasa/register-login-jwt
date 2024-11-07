@@ -6,10 +6,8 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.http.MediaType;
 import org.springframework.web.multipart.MultipartFile;
-import seth.contract.validation.FileSizeConstants;
-import seth.contract.validation.constraints.*;
+
 
 
 @Getter @Setter
@@ -21,7 +19,7 @@ public class ContractRequest {
 
     @JsonIgnore
     @Valid
-    @ValidDateRange(message = "Expiry date must come after Signed Date")
+
     private DateRange dateRange;
 
     @Min(value = 1L, message = "Contract Type is required")
@@ -30,9 +28,7 @@ public class ContractRequest {
     @Min(value = 1L, message = "Department is required")
     private long deptId;
 
-    @FileRequired
-    @FileTypeAllowed(value = MediaType.APPLICATION_PDF_VALUE, message = "Only PDF files allowed")
-    @MaxFileSize(value = FileSizeConstants.FIVE_MEGABYTES, message = "File is too large. Max: 5MB")
+
     private MultipartFile file;
 
     @NotBlank(message = "Contact Person is required")
@@ -42,10 +38,10 @@ public class ContractRequest {
     @Getter
     public static class DateRange {
         @NotBlank(message = "Signed Date is required")
-        @ValidDate(message = "Please provide a valid Signed Date")
+
         private String signed;
 
-        @ValidDate(message = "Please provide a valid Expires Date")
+
         private String expires;
     }
 
