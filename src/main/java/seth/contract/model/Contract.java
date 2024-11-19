@@ -1,11 +1,16 @@
 package seth.contract.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
+
 import java.time.LocalDate;
 
+
+@Data
 @Entity
 @Getter @Setter
 public class Contract extends BaseEntity {
@@ -13,44 +18,47 @@ public class Contract extends BaseEntity {
     private String title;
 
     @Column(nullable = false)
+    private String type;
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    @Column(nullable = false)
     private LocalDate signed;
 
-    private LocalDate expires;
-
+    @Column(nullable = false)
     private String contactPerson;
 
+    @Column(nullable = false)
+    private String department; // Consider using an enum or a separate Department entity
+
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate expires;
+
+    @Lob // For storing large files (PDF)
+    private byte[] fileContent;
+
+    @Column(name = "file_name")
     private String fileName;
 
-    private String fileType;
+    @Column(name = "file_content_type")
+    private String fileContentType;
 
-    private String fileDirectory;
+    @Column(name = "uploaded_by") // Assuming you have a user entity
+    private String uploadedBy; // Or use a @ManyToOne relationship to a User entity
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "type_id")
-    private ContractType type;
+    public Contract() {}
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dept_id")
-    private Department department;
-
-    public void setFile(String fileName, String fileType, String fileDirectory){
+    // Add a constructor that takes all fields as arguments
+    public Contract(String title, String type, LocalDate signed, String contactPerson, String department, LocalDate expires, byte[] fileContent, String fileName, String fileContentType, String uploadedBy) {
+        this.title = title;
+        this.type = type;
+        this.signed = signed;
+        this.contactPerson = contactPerson;
+        this.department = department;
+        this.expires = expires;
+        this.fileContent = fileContent;
         this.fileName = fileName;
-        this.fileType = fileType;
-        this.fileDirectory = fileDirectory;
+        this.fileContentType = fileContentType;
+        this.uploadedBy = uploadedBy;
     }
 
-    public static abstract class Meta {
-        public static final String ID = "id";
-        public static final String ACTIVE_STATUS = "activeStatus";
-        public static final String TITLE = "title";
-        public static final String SIGNED = "signed";
-        public static final String EXPIRES = "expires";
-        public static final String CONTACT_PERSON = "contactPerson";
-        public static final String FILE_NAME = "fileName";
-        public static final String FILE_TYPE = "fileType";
-        public static final String FILE_DIRECTORY = "fileDirectory";
-        public static final String CONTRACT_TYPE = "type";
-        public static final String DEPARTMENT = "department";
-        public static final String CREATED_BY = "createdBy";
-    }
 }

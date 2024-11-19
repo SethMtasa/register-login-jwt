@@ -1,54 +1,30 @@
 package seth.contract.dto.contract;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
 import org.springframework.web.multipart.MultipartFile;
 
 
+import java.time.LocalDate;
 
-@Getter @Setter
+
+@Data
 public class ContractRequest {
-    public ContractRequest() { this.dateRange = new DateRange(); }
-
-    @NotBlank(message = "Title is required")
-    private String title;
 
     @JsonIgnore
     @Valid
-
-    private DateRange dateRange;
-
-    @Min(value = 1L, message = "Contract Type is required")
-    private long typeId;
-
-    @Min(value = 1L, message = "Department is required")
-    private long deptId;
-
-
-    private MultipartFile file;
-
-    @NotBlank(message = "Contact Person is required")
+    private String title;
+    private String type;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate signed;
     private String contactPerson;
-
-    /********** Inner Class **********/
-    @Getter
-    public static class DateRange {
-        @NotBlank(message = "Signed Date is required")
-
-        private String signed;
+    private String department;
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate expires;
+    private MultipartFile file;
+    private String uploadedBy;
 
 
-        private String expires;
-    }
-
-    /************* Setters And Getters *************/
-    public void setSigned(String signed) { this.dateRange.signed = signed; }
-
-    public void setExpires(String expires) { this.dateRange.expires = expires; }
-    public String getSigned() { return dateRange.signed; }
-    public String getExpires() { return dateRange.expires; }
 }

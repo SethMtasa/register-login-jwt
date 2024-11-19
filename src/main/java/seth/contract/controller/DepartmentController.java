@@ -28,19 +28,33 @@ public class DepartmentController {
     public ResponseEntity<ApiResponse<Department>> addNewDepartment(@RequestBody DepartmentRequest departmentRequest) {
         try {
             ApiResponse<Department> apiResponse = departmentService.addNewDepartment(departmentRequest);
-            return new ResponseEntity<>(apiResponse, HttpStatus.CREATED); // 201 Created
+            return new ResponseEntity<>(apiResponse, HttpStatus.CREATED);
         } catch (DataIntegrityViolationException e) {
             ApiResponse<Department> apiResponse = new ApiResponse<>(false, e.getMessage(), null);
-            return new ResponseEntity<>(apiResponse, HttpStatus.CONFLICT); // 409 Conflict
+            return new ResponseEntity<>(apiResponse, HttpStatus.CONFLICT);
         } catch (Exception e) {
             ApiResponse<Department> apiResponse = new ApiResponse<>(false, e.getMessage(), null);
-            return new ResponseEntity<>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR); // 500 Internal Server Error
+            return new ResponseEntity<>(apiResponse, HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
     @GetMapping("/all")
     public ResponseEntity<ApiResponse<List<Department>>> getAllDepartments() {
         ApiResponse<List<Department>> apiResponse = departmentService.getAllDepartments();
-        return new ResponseEntity<>(apiResponse, HttpStatus.OK); // 200 OK
+        return new ResponseEntity<>(apiResponse, apiResponse.success() ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<Department>> updateDepartment(@PathVariable Long id, @RequestBody DepartmentRequest departmentRequest) {
+        ApiResponse<Department> apiResponse = departmentService.updateDepartment(id, departmentRequest);
+        return new ResponseEntity<>(apiResponse, apiResponse.success() ? HttpStatus.OK : HttpStatus.BAD_REQUEST);
+    }
+
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<String>> deleteDepartment(@PathVariable Long id) {
+        ApiResponse<String> apiResponse = departmentService.deleteDepartment(id);
+        return new ResponseEntity<>(apiResponse, apiResponse.success() ? HttpStatus.OK : HttpStatus.NOT_FOUND);
+    }
+
 }

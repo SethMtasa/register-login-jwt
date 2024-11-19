@@ -16,7 +16,7 @@ spring:
     properties:
       hibernate:
         format_sql: false
-        dialect: org.hibernate.dialect.MySQL8Dialect
+
 
 secret:
   key: 38EA0125C0F8C5DF8C5EABB1A834A88F5974D69839E02CABDC359F1BEAE4709B4DE5EE149463F86984A0F34CE6AD83E9313201CF2810208674E14D3A71FB16DF
@@ -26,4 +26,23 @@ active.directory:
   domain: 'netone.co.zw'
   url: 'ldap://10.95.10.63:389'
   root_dn: 'dc=netone,dc=co,dc=zw'
+
+
+  servlet:
+    multipart:
+      enabled: true
+      file-size-threshold: 2KB
+      max-file-size: 200MB
+      max-request-size: 215MB
+
+file:
+  upload:
+    path: C:/Users/sethm/Desktop/MyFiles/
+
+logging:
+  level:
+    org:
+      springframework:
+        web:
+          multipart: DEBUG
 
