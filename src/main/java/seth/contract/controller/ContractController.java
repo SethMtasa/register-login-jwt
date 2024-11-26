@@ -1,12 +1,16 @@
 package seth.contract.controller;
 
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import seth.contract.dto.contract.ContractRequest;
 import seth.contract.dto.user.ApiResponse;
+import seth.contract.exception.ContractNotFoundException;
 import seth.contract.model.Contract;
 import seth.contract.service.ContractService;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,7 +26,8 @@ public class ContractController {
     }
 
     @PostMapping("/add")
-    public ResponseEntity<ApiResponse<Contract>> createContract(@ModelAttribute ContractRequest contractRequest) {
+    public ResponseEntity<ApiResponse<Contract>> createContract( @RequestParam("file") MultipartFile file,
+                                                                 @ModelAttribute ContractRequest contractRequest) {
         Contract createdContract = contractService.createContract(contractRequest);
         return ResponseEntity.ok(new ApiResponse<>(true, "Contract created successfully", createdContract));
     }
@@ -50,7 +55,30 @@ public class ContractController {
         }
     }
 
-    @DeleteMapping("/{id}")
+    @GetMapping("/{id}/view") // New endpoint for viewing contract details
+    public ResponseEntity<ApiResponse<Contract>> viewContract(@PathVariable Long id) {
+        Optional<Contract> contract = contractService.getContractById(id);
+        return contract.map(c -> ResponseEntity.ok(new ApiResponse<>(true, "Contract retrieved successfully", c)))
+                .orElse(ResponseEntity.ok(new ApiResponse<>(false, "Contract not found", null)));
+    }
+
+    @GetMapping("/{id}/file")
+
+    public ResponseEntity<byte[]> getContractFile(@PathVariable Long id) {
+        try {
+            byte[] fileData = contractService.getContractFileById(id);
+            String contentType = "application/pdf"; // Adjust based on file type
+            return ResponseEntity.ok()
+                    .contentType(MediaType.valueOf(contentType))
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"contract_" + id + ".pdf\"")
+                    .body(fileData);
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        } catch (ContractNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+   @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteContract(@PathVariable Long id) {
         try {
             contractService.deleteContract(id);

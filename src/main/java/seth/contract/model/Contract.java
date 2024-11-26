@@ -33,8 +33,8 @@ public class Contract extends BaseEntity {
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate expires;
 
-    @Lob // For storing large files (PDF)
-    private byte[] fileContent;
+    @Column(name = "file_path")
+    private String filePath;
 
     @Column(name = "file_name")
     private String fileName;
@@ -48,14 +48,14 @@ public class Contract extends BaseEntity {
     public Contract() {}
 
     // Add a constructor that takes all fields as arguments
-    public Contract(String title, String type, LocalDate signed, String contactPerson, String department, LocalDate expires, byte[] fileContent, String fileName, String fileContentType, String uploadedBy) {
+    public Contract(String title, String type, LocalDate signed, String contactPerson, String department, LocalDate expires, String filePath, String fileName, String fileContentType, String uploadedBy) {
         this.title = title;
         this.type = type;
         this.signed = signed;
         this.contactPerson = contactPerson;
         this.department = department;
         this.expires = expires;
-        this.fileContent = fileContent;
+        this.filePath = filePath;
         this.fileName = fileName;
         this.fileContentType = fileContentType;
         this.uploadedBy = uploadedBy;

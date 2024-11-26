@@ -1,9 +1,11 @@
 package seth.contract.service;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import seth.contract.dto.contract.ContractRequest;
+import seth.contract.exception.ContractNotFoundException;
 import seth.contract.model.Contract;
 import seth.contract.model.ContractType;
 import seth.contract.model.Department;
@@ -11,7 +13,12 @@ import seth.contract.repository.ContractRepository;
 import seth.contract.repository.ContractTypeRepository;
 import seth.contract.repository.DepartmentRepository;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,6 +28,9 @@ public class ContractServiceImpl implements ContractService {
     private final ContractRepository contractRepository;
     private final ContractTypeRepository contractTypeRepository;
     private final DepartmentRepository departmentRepository;
+
+    @Value("${file.upload.path}")
+    private String uploadPath;
 
     public ContractServiceImpl(ContractRepository contractRepository,
                                ContractTypeRepository contractTypeRepository,
@@ -67,7 +77,10 @@ public class ContractServiceImpl implements ContractService {
         // Handle file upload
         MultipartFile file = contractRequest.getFile();
         if (file != null && !file.isEmpty()) {
-            contract.setFileContent(file.getBytes());
+            // Generate a file path
+            String filePath = uploadPath + "/" + file.getOriginalFilename();
+            file.transferTo(new File(filePath)); // Save the file to the specified path
+            contract.setFilePath(filePath);
             contract.setFileName(file.getOriginalFilename());
             contract.setFileContentType(file.getContentType());
         }
@@ -77,9 +90,32 @@ public class ContractServiceImpl implements ContractService {
 
 
 
+
     @Override
     public Optional<Contract> getContractById(Long id) {
         return contractRepository.findById(id);
+    }
+
+
+    @Override
+    public byte[] getContractFileById(Long id) throws IOException {
+        Optional<Contract> contractOptional = contractRepository.findById(id);
+        if (contractOptional.isPresent()) {
+            Contract contract = contractOptional.get();
+            String filePath = contract.getFilePath();
+            if (filePath != null && !filePath.isEmpty()) {
+                Path path = Paths.get(filePath);
+                if (Files.exists(path)) {
+                    return Files.readAllBytes(path);
+                } else {
+                    throw new FileNotFoundException("Contract file not found at path: " + filePath);
+                }
+            } else {
+                throw new FileNotFoundException("Contract file path not found for contract ID: " + id);
+            }
+        } else {
+            throw new ContractNotFoundException("Contract not found for ID: " + id);
+        }
     }
 
     @Override
