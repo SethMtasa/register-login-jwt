@@ -1,6 +1,7 @@
 package seth.contract.service;
 
 import seth.contract.dto.contract.ContractRequest;
+import seth.contract.exception.UnsupportedFileTypeException;
 import seth.contract.model.Contract;
 
 import java.io.IOException;
@@ -14,7 +15,7 @@ public interface ContractService {
     Optional<Contract> getContractById(Long id);
 
     List<Contract> getAllContracts();
-    byte[] getContractFileById(Long id) throws IOException;
+    byte[] getContractFileById(Long id) throws IOException, UnsupportedFileTypeException;
 
     Contract updateContract(Long id, Contract updatedContract);
 

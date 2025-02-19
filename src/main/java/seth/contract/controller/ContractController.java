@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import seth.contract.dto.contract.ContractRequest;
 import seth.contract.dto.user.ApiResponse;
 import seth.contract.exception.ContractNotFoundException;
+import seth.contract.exception.UnsupportedFileTypeException;
 import seth.contract.model.Contract;
 import seth.contract.service.ContractService;
 
@@ -55,29 +56,43 @@ public class ContractController {
         }
     }
 
-    @GetMapping("/{id}/view") // New endpoint for viewing contract details
-    public ResponseEntity<ApiResponse<Contract>> viewContract(@PathVariable Long id) {
-        Optional<Contract> contract = contractService.getContractById(id);
-        return contract.map(c -> ResponseEntity.ok(new ApiResponse<>(true, "Contract retrieved successfully", c)))
-                .orElse(ResponseEntity.ok(new ApiResponse<>(false, "Contract not found", null)));
-    }
-
     @GetMapping("/{id}/file")
-
     public ResponseEntity<byte[]> getContractFile(@PathVariable Long id) {
         try {
             byte[] fileData = contractService.getContractFileById(id);
             String contentType = "application/pdf"; // Adjust based on file type
+
             return ResponseEntity.ok()
                     .contentType(MediaType.valueOf(contentType))
                     .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"contract_" + id + ".pdf\"")
-                    .body(fileData);
+                    .body(fileData); // Return the raw byte array here
         } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-        } catch (ContractNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(null); // You can optionally return an error response in another way
+        } catch (ContractNotFoundException | UnsupportedFileTypeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(null); // Same here
         }
     }
+
+//    @GetMapping("/{id}/file")
+//    public ResponseEntity<ApiResponse<byte[]>> getContractFile(@PathVariable Long id) {
+//        try {
+//            byte[] fileData = contractService.getContractFileById(id);
+//            String contentType = "application/pdf"; // Adjust based on file type
+//
+//            return ResponseEntity.ok()
+//                    .contentType(MediaType.valueOf(contentType))
+//                    .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"contract_" + id + ".pdf\"")
+//                    .body(new ApiResponse<>(true, "Draw Result file retrieved successfully", fileData));
+//        } catch (IOException e) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                    .body(new ApiResponse<>(false, "Draw Result file not found", null));
+//        } catch (ContractNotFoundException e) {
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+//                    .body(new ApiResponse<>(false, "Draw Result not found", null));
+//        }
+//    }
    @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteContract(@PathVariable Long id) {
         try {

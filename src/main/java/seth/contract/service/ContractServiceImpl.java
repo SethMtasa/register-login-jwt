@@ -6,6 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import seth.contract.dto.contract.ContractRequest;
 import seth.contract.exception.ContractNotFoundException;
+import seth.contract.exception.UnsupportedFileTypeException;
 import seth.contract.model.Contract;
 import seth.contract.model.ContractType;
 import seth.contract.model.Department;
@@ -90,7 +91,6 @@ public class ContractServiceImpl implements ContractService {
 
 
 
-
     @Override
     public Optional<Contract> getContractById(Long id) {
         return contractRepository.findById(id);
@@ -98,14 +98,37 @@ public class ContractServiceImpl implements ContractService {
 
 
     @Override
-    public byte[] getContractFileById(Long id) throws IOException {
+    public byte[] getContractFileById(Long id) throws IOException, UnsupportedFileTypeException {
         Optional<Contract> contractOptional = contractRepository.findById(id);
         if (contractOptional.isPresent()) {
             Contract contract = contractOptional.get();
             String filePath = contract.getFilePath();
+
+            // Check if the file path is valid
             if (filePath != null && !filePath.isEmpty()) {
                 Path path = Paths.get(filePath);
+
+                // Check if the file exists
                 if (Files.exists(path)) {
+                    // Get the file extension
+                    String fileExtension = getFileExtension(path);
+
+                    // Additional processing based on file type can be added here if necessary
+                    switch (fileExtension.toLowerCase()) {
+                        case "pdf":
+                            // Handle PDF specific logic if needed
+                            break;
+                        case "docx":
+                            // Handle DOCX specific logic if needed
+                            break;
+                        case "xlsx":
+                            // Handle XLSX specific logic if needed
+                            break;
+                        default:
+                            throw new UnsupportedFileTypeException("Unsupported file type: " + fileExtension);
+                    }
+
+                    // Return the file as a byte array
                     return Files.readAllBytes(path);
                 } else {
                     throw new FileNotFoundException("Contract file not found at path: " + filePath);
@@ -117,6 +140,37 @@ public class ContractServiceImpl implements ContractService {
             throw new ContractNotFoundException("Contract not found for ID: " + id);
         }
     }
+
+    // Helper method to get the file extension
+    private String getFileExtension(Path path) {
+        String fileName = path.getFileName().toString();
+        int lastIndexOfDot = fileName.lastIndexOf('.');
+        if (lastIndexOfDot > 0 && lastIndexOfDot < fileName.length() - 1) {
+            return fileName.substring(lastIndexOfDot + 1);
+        }
+        return ""; // Return empty if no extension found
+    }
+
+//    @Override
+//    public byte[] getContractFileById(Long id) throws IOException {
+//        Optional<Contract> contractOptional = contractRepository.findById(id);
+//        if (contractOptional.isPresent()) {
+//            Contract contract = contractOptional.get();
+//            String filePath = contract.getFilePath();
+//            if (filePath != null && !filePath.isEmpty()) {
+//                Path path = Paths.get(filePath);
+//                if (Files.exists(path)) {
+//                    return Files.readAllBytes(path);
+//                } else {
+//                    throw new FileNotFoundException("Contract file not found at path: " + filePath);
+//                }
+//            } else {
+//                throw new FileNotFoundException("Contract file path not found for contract ID: " + id);
+//            }
+//        } else {
+//            throw new ContractNotFoundException("Contract not found for ID: " + id);
+//        }
+//    }
 
     @Override
     public List<Contract> getAllContracts() {
